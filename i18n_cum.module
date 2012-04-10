@@ -1,0 +1,93 @@
+<?php
+//$id$
+
+global $language;
+	$lang_name = $language->language;
+
+/**
+ * Implementation of hook_perm().
+ *
+ * This function takes 0 arguments, and returns an array of permissions
+ * defined by our module. The permissions are automatically made available
+ * under admin/user/permissions.
+ */
+ function i18n_cum_perm() {
+   return array('Manage i18n Email recipient');
+ }
+ 
+/**
+ * Implementation of hook_menu().
+ *
+ * This function takes 0 arguments, and returns an array of menu items
+ * defined by the module.
+ */
+	function i18n_cum_menu() {
+ 
+	$items['admin/settings/i18n_email_recipient_manager'] = array(
+    'title' => 'i18n Email recipient manager',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('email_recipient_manager'),
+    'access callback' => 'user_access',
+    'access arguments' => array('Manage i18n Email recipient'),
+	);
+	return $items; 
+	}
+
+	function get_email_recipient($lang_name){
+     	$result = db_query("SELECT email_recipient, form_id FROM {i18n_cum} WHERE language = '%s'", $lang_name);
+	   while($row = db_fetch_object($result)){
+		  $myresult[$row->form_id] = $row->email_recipient;
+		}
+	return $myresult;	 	
+	}
+	function update_insert_value($form_state, $f_id){
+    global $language;
+	$lang_name = $language->language;
+	$email_update = db_query("UPDATE {i18n_cum} SET email_recipient='%s' WHERE language='%s' AND form_id='%s'",$form_state[values][$f_id],$lang_name, $f_id);
+		if(db_affected_rows($email_update)==0){
+		db_query("INSERT INTO {i18n_cum} (language, form_id, email_recipient) VALUES('%s','%s','%s')",$lang_name,$f_id,$form_state[values][$f_id]);
+		}
+	}
+    
+	function email_recipient_manager_submit($form, $form_state){
+	update_insert_value($form_state,'sonosite-contactus-tech-support-form');
+	update_insert_value($form_state,'contactus_sales_reemb');
+	update_insert_value($form_state,'contactus_media');
+	update_insert_value($form_state,'contactus_feedback');
+	drupal_set_message('Changes have been saved successfully.');
+	}	
+
+	function email_recipient_manager(){
+	$form = array();
+	
+	global $language;
+	$lang_name = $language->language;
+	$default_values = get_email_recipient($lang_name);
+	
+	$form['sonosite-contactus-tech-support-form'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Mail Ids for Tech Support Form'),
+    '#default_value' => $default_values['sonosite-contactus-tech-support-form'],
+	 
+	);
+	$form['contactus_sales_reemb'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Mail Ids for Sales and Reimbursement Form'),
+    '#default_value' => $default_values['contactus_sales_reemb'],
+	);
+	$form['contactus_media'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Mails Ids for Media Inquiry Form'),
+    '#default_value' => $default_values['contactus_media'],
+	);  
+	$form['contactus_feedback'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Mails Ids for Feedback / Other Form'),
+    '#default_value' => $default_values['contactus_feedback'],
+	);
+	$form['submit'] = array(
+  '#type' => 'submit',
+  '#value' => 'save settings'
+  );
+  return $form;
+  }

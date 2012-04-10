@@ -1,0 +1,5 @@
+; $Id$
+name = i18n_cum
+description = A module that allowes to send emails according to languages
+core = 6.x
+package = Example modules

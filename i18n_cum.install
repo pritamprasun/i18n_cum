@@ -1,0 +1,53 @@
+<?php
+//$Id$
+
+/*
+* @file
+* Install file for i18n_cum module
+*/
+
+/*
+* Implementation of hook schema().
+*/
+function i18n_cum_schema(){
+	$schema = array();
+	$schema['i18n_cum'] = array(
+  'description' => t('Contain i18n recipient email'),
+  'fields' => array(
+    'language' => array(
+      'description' => t('the language '),
+      'type' => 'varchar',
+      'length' => '10',
+      'not null' => TRUE,
+    ),
+    'form_id' => array(
+      'description' => t('form id'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => TRUE,
+    ),
+    'email_recipient' => array(
+      'description' => t('recipient email'),
+      'type' => 'varchar',
+      'length' => '1000',
+      'not null' => FALSE,
+    ),
+  ),
+  'primary key' => array('language', 'form_id'),
+);
+	return $schema;
+
+}
+/*
+* Implementation of hook_install()
+*/
+function i18n_cum_install(){
+	drupal_install_schema('i18n_cum');
+	}
+	
+/*
+* Implementation of hook_uninstall().
+*/
+function i18n_cum_uninstall(){
+	drupal_uninstall_schema('i18n_cum');
+	}
